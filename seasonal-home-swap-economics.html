@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Housing Economics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        th:first-child {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: background-color 0.3s ease;
+        }
+        
+        tr:hover td {
+            background-color: #f8f9fa;
+        }
+        
+        .metric {
+            font-weight: 600;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+        }
+        
+        .cost {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .savings {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .premium {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        .utility {
+            color: #8e44ad;
+            font-weight: 600;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .summary h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .note {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Seasonal Housing Economics Analysis</h1>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Financial Metric</th>
+                        <th>Traditional<br>(2 Houses Each)</th>
+                        <th>Single House<br>(Suboptimal Climate)</th>
+                        <th>Swap Arrangement<br>(1 House Each + Premium)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="metric">Total Houses Needed</td>
+                        <td>4 houses</td>
+                        <td>2 houses</td>
+                        <td>2 houses</td>
+                    </tr>
+                    <tr>
+                        <td class="metric">Capital Cost (per person)</td>
+                        <td class="cost">$800,000<br>(2 × $400k)</td>
+                        <td>$400,000<br>(1 × $400k)</td>
+                        <td class="premium">$520,000<br>(1 × $400k + 30% premium)</td>
+                    </tr>
+                    <tr>
+                        <td class="metric">Annual Property Taxes</td>
+                        <td class="cost">$16,000<br>(2 × $8k)</td>
+                        <td>$8,000</td>
+                        <td>$10,400<br>(1 × $8k + 30%)</td>
+                    </tr>
+                    <tr>
+                        <td class="metric">Annual Insurance</td>
+                        <td class="cost">$6,000<br>(2 × $3k)</td>
+                        <td>$3,000</td>
+                        <td>$3,900<br>(1 × $3k + 30%)</td>
+                    </tr>
+                    <tr>
+                        <td class="metric">Annual Maintenance</td>
+                        <td class="cost">$8,000<br>(2 × $4k)</td>
+                        <td>$4,000</td>
+                        <td>$5,200<br>(1 × $4k + 30%)</td>
+                    </tr>
+                    <tr>
+                        <td class="metric">Coordination Costs</td>
+                        <td>$0</td>
+                        <td>$0</td>
+                        <td>$1,500<br>(legal, scheduling)</td>
+                    </tr>
+                    <tr>
+                        <td class="metric"><strong>Total Annual Cost</strong></td>
+                        <td class="cost"><strong>$30,000</strong></td>
+                        <td><strong>$15,000</strong></td>
+                        <td class="premium"><strong>$21,000</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="metric">Seasonal Utility Score</td>
+                        <td class="utility">100%<br>(Optimal)</td>
+                        <td class="utility">60%<br>(Suboptimal)</td>
+                        <td class="utility">100%<br>(Optimal)</td>
+                    </tr>
+                    <tr>
+                        <td class="metric"><strong>Cost vs. Traditional</strong></td>
+                        <td><strong>Baseline</strong></td>
+                        <td class="savings"><strong>-$15,000 (-50%)</strong></td>
+                        <td class="savings"><strong>-$9,000 (-30%)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="summary">
+            <h3>💡 Key Economic Insights</h3>
+            <p><strong>The swap arrangement delivers <span class="highlight">optimal utility at 70% of traditional cost</span></strong></p>
+            
+            <p><strong>Cost Reduction Breakdown:</strong></p>
+            <ul>
+                <li><strong>Snowbird saves $9,000/year</strong> (30% less than owning 2 houses)</li>
+                <li><strong>Anti-snowbird saves $6,000/year</strong> (40% less than owning 2 houses, since they pay lower premium)</li>
+                <li><strong>Society saves 50% on housing capital</strong> (2 houses vs 4 houses for same utility)</li>
+            </ul>
+            
+            <p><strong>Why This Works:</strong></p>
+            <ul>
+                <li>Eliminates redundant housing stock</li>
+                <li>Matches complementary preferences</li>
+                <li>Maintains optimal seasonal access</li>
+                <li>Reduces maintenance, taxes, and capital requirements</li>
+            </ul>
+            
+            <div class="note">
+                *Numbers assume $400k average home value, typical property costs, and 30% premium for optimal seasonal timing
+            </div>
+        </div>
+    </div>
+</body>
+</html>
