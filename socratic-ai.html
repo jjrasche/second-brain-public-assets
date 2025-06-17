@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Socratic AI Works - Privacy-First Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4a90e2, #7b68ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 3rem;
+        }
+        
+        .architecture {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .flow-diagram {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .component {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .component:hover {
+            border-color: #4a90e2;
+            transform: translateY(-2px);
+        }
+        
+        .component h3 {
+            color: #4a90e2;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .local {
+            border-color: #4a90e2;
+            background: rgba(74, 144, 226, 0.05);
+        }
+        
+        .cloud {
+            border-color: #888;
+            border-style: dashed;
+        }
+        
+        .arrow {
+            text-align: center;
+            color: #666;
+            font-size: 2rem;
+            margin: 1rem 0;
+        }
+        
+        .privacy-layer {
+            background: rgba(123, 104, 238, 0.1);
+            border: 2px solid #7b68ee;
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .code-example {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+        
+        .feature-card h4 {
+            color: #7b68ee;
+            margin-bottom: 0.5rem;
+        }
+        
+        .slider-demo {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(74, 144, 226, 0.2);
+            border: 1px solid #4a90e2;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+        
+        .example-flow {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .step {
+            margin: 1rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        
+        .step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #4a90e2;
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        
+        .highlight {
+            color: #4a90e2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>How Socratic AI Actually Works</h1>
+        <p class="subtitle">A privacy-first orchestration layer, not another AI product</p>
+        
+        <div class="architecture">
+            <h2 style="margin-bottom: 1.5rem;">🏗️ System Architecture</h2>
+            
+            <div class="flow-diagram">
+                <div class="component local">
+                    <h3>🎙️ Your Voice <span class="badge">On Device</span></h3>
+                    <p>Continuous audio stream → Speech-to-text (Whisper or Web Speech API)</p>
+                    <div class="code-example">
+                        // Everything starts locally
+                        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        const transcript = await speechToText(audioStream);
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="component local">
+                    <h3>🧠 When-to-Help Classifier <span class="badge">Trainable</span></h3>
+                    <p>ML model asking: "Should I help right now?"</p>
+                    <div class="slider-demo">
+                        <label>Chatty ← → Quiet</label>
+                        <input type="range" class="slider" min="0" max="100" value="30">
+                        <small>Threshold: 0.3 (Only interrupt when 70%+ confident)</small>
+                    </div>
+                    <p style="margin-top: 1rem;"><strong>Trained by:</strong> "AI, what do you think?" / "Good catch" / "No thanks"</p>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="privacy-layer">
+                    <h3>🔒 Privacy Layer</h3>
+                    <p>Strips: Names → [PERSON], Addresses → [LOCATION], Numbers → [DATA]</p>
+                    <p><small>Your sensitive data never leaves your device</small></p>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="component local">
+                    <h3>📚 Second Brain RAG <span class="badge">Your Context</span></h3>
+                    <p>Vectorized notes, documents, past conversations</p>
+                    <div class="code-example">
+                        // Finds relevant context from YOUR data
+                        const context = await vectorDB.search(anonymizedQuery, {
+                            sources: ['obsidian', 'notion', 'emails', 'past_convos'],
+                            limit: 5
+                        });
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="component cloud">
+                    <h3>☁️ Inference Engine <span class="badge">Any LLM</span></h3>
+                    <p>GPT-4, Claude, Llama - completely swappable</p>
+                    <p><em>Receives only: Anonymized text + Relevant context</em></p>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <div class="component local">
+                    <h3>✅ Response Evaluator <span class="badge">Quality Gate</span></h3>
+                    <p>LoRA fine-tuned to YOUR standards: Is this helpful enough to interrupt?</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example-flow">
+            <h2>🎭 Live Example: Building Your Second Brain As You Go</h2>
+            
+            <div class="step" data-step="1">
+                <strong>You:</strong> <em>"Working on the API redesign... <span class="highlight">I wonder if</span> we should use GraphQL instead of REST for the new endpoints..."</em>
+            </div>
+            
+            <div class="step" data-step="2">
+                <strong>Classifier:</strong> Confidence: 0.85 → Above threshold (0.7) → Trigger help
+            </div>
+            
+            <div class="step" data-step="3">
+                <strong>Privacy Layer:</strong> No PII detected → Query passes through unchanged
+            </div>
+            
+            <div class="step" data-step="4">
+                <strong>RAG Search:</strong> Finds: "api-decisions.md" (0.89 similarity), "team-meeting-2024-01.md" (0.76)
+            </div>
+            
+            <div class="step" data-step="5">
+                <strong>AI Response:</strong> "Your team decided on REST in January for simpler caching. Should I create a new note comparing GraphQL benefits for your use case?"
+            </div>
+            
+            <div class="step" data-step="6">
+                <strong>You:</strong> "Yeah, do that."
+            </div>
+            
+            <div class="step" data-step="7">
+                <strong>Second Brain Update:</strong> 
+                <div class="code-example">
+                    📄 Created: "api-redesign-graphql-comparison.md"
+                    📎 Linked to: "api-decisions.md"
+                    🏷️ Tagged: #architecture #decisions #api
+                </div>
+            </div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>🏠 Everything Stays Local</h4>
+                <ul>
+                    <li>Audio processing: On device</li>
+                    <li>Classifier: On device (tiny model)</li>
+                    <li>Second Brain: On device</li>
+                    <li>Privacy stripping: On device</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>Only anonymized queries hit the cloud</strong></p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🔄 Self-Improving System</h4>
+                <p><strong>Passive Training:</strong></p>
+                <ul>
+                    <li>Every "no thanks" → Lower threshold here</li>
+                    <li>Every "good catch" → Reinforce pattern</li>
+                    <li>Every "AI, thoughts?" → Mark as missed opportunity</li>
+                </ul>
+                <p style="margin-top: 1rem;">After ~100 interactions: 90%+ accuracy on YOUR patterns</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🧩 Not a Product - An Orchestrator</h4>
+                <p>Mix and match components:</p>
+                <ul>
+                    <li><strong>STT:</strong> Whisper, Web Speech, any API</li>
+                    <li><strong>LLM:</strong> OpenAI, Anthropic, Llama, Mixtral</li>
+                    <li><strong>Vector DB:</strong> Chroma, Pinecone, FAISS</li>
+                    <li><strong>Second Brain:</strong> Obsidian, Notion, raw files</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 3rem; padding: 2rem; background: rgba(74, 144, 226, 0.1); border-radius: 15px; text-align: center;">
+            <h3 style="color: #4a90e2; margin-bottom: 1rem;">The Beautiful Part?</h3>
+            <p style="font-size: 1.2rem;">Your Second Brain builds itself as you think out loud.</p>
+            <p style="margin-top: 1rem; color: #888;">No typing. No organizing. Just natural thought capture.</p>
+        </div>
+    </div>
+</body>
+</html>
