@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Quantization Trade-offs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .visualization-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .viz-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .chart-container {
+            margin: 20px 0;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 6px;
+            pointer-events: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .axis-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-dasharray: 2,2;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <h1>LLM Quantization Trade-off Analysis</h1>
+        
+        <!-- Memory-Accuracy Trade-off Scatter Plot -->
+        <div class="viz-section">
+            <h2>1. Memory vs Accuracy Trade-off</h2>
+            <p class="description">
+                Each bubble represents a quantization method. Horizontal position shows memory usage, vertical shows accuracy retention, 
+                and bubble size indicates inference speed gain. The ideal spot is top-left (low memory, high accuracy).
+            </p>
+            <div id="scatter-plot" class="chart-container"></div>
+        </div>
+
+        <!-- Task-Specific Performance Heatmap -->
+        <div class="viz-section">
+            <h2>2. Task-Specific Performance Retention</h2>
+            <p class="description">
+                This heatmap shows how different cognitive tasks are affected by quantization. Darker colors indicate better performance retention.
+                Mathematical reasoning suffers most, while creative tasks are more resilient.
+            </p>
+            <div id="heatmap" class="chart-container"></div>
+        </div>
+
+        <!-- Speed-Quality-Memory Triangle -->
+        <div class="viz-section">
+            <h2>3. Speed-Quality-Memory Trade-off Triangle</h2>
+            <p class="description">
+                Each quantization method creates a different "triangle" shape. Larger triangles are better. 
+                The three axes represent: inference speed improvement, quality retention, and memory efficiency.
+            </p>
+            <div id="triangle-chart" class="chart-container"></div>
+        </div>
+
+        <!-- Perplexity Degradation Curve -->
+        <div class="viz-section">
+            <h2>4. Perplexity Degradation by Model Size</h2>
+            <p class="description">
+                Perplexity measures model uncertainty (lower is better). This shows how perplexity increases with more aggressive quantization.
+                Notice how larger models (70B) degrade more gracefully than smaller ones (7B).
+            </p>
+            <div id="perplexity-curve" class="chart-container"></div>
+        </div>
+    </div>
+
+    <div class="tooltip"></div>
+
+    <script>
+        // Global tooltip
+        const tooltip = d3.select('.tooltip');
+
+        // Color schemes
+        const quantColors = {
+            'FP32': '#3498db',
+            'FP16': '#2ecc71',
+            'FP8': '#27ae60',
+            'INT8': '#f39c12',
+            'INT4': '#e74c3c',
+            'INT3': '#c0392b',
+            'INT2': '#7f1e1e'
+        };
+
+        const methodColors = {
+            'GPTQ': '#9b59b6',
+            'AWQ': '#3498db',
+            'SqueezeLLM': '#2ecc71',
+            'AQLM': '#e74c3c'
+        };
+
+        // 1. Memory-Accuracy Scatter Plot
+        function createScatterPlot() {
+            const margin = {top: 40, right: 120, bottom: 60, left: 60};
+            const width = 800 - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
+
+            const svg = d3.select('#scatter-plot')
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Data: [method, quantization, memory_gb, accuracy_percent, speed_multiplier]
+            const data = [
+                {method: 'Baseline', quant: 'FP32', memory: 280, accuracy: 100, speed: 1},
+                {method: 'Baseline', quant: 'FP16', memory: 140, accuracy: 99.5, speed: 1.5},
+                {method: 'Baseline', quant: 'FP8', memory: 70, accuracy: 99, speed: 1.4},
+                {method: 'GPTQ', quant: 'INT8', memory: 70, accuracy: 97, speed: 2.2},
+                {method: 'AWQ', quant: 'INT8', memory: 70, accuracy: 98, speed: 2.3},
+                {method: 'GPTQ', quant: 'INT4', memory: 35, accuracy: 93, speed: 3.5},
+                {method: 'AWQ', quant: 'INT4', memory: 35, accuracy: 95, speed: 3.8},
+                {method: 'SqueezeLLM', quant: 'INT4', memory: 35, accuracy: 96, speed: 3.2},
+                {method: 'SqueezeLLM', quant: 'INT3', memory: 26, accuracy: 90, speed: 3.8},
+                {method: 'AQLM', quant: 'INT2', memory: 17.5, accuracy: 82, speed: 4.0}
+            ];
+
+            // Scales
+            const xScale = d3.scaleLog()
+                .domain([10, 300])
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([75, 102])
+                .range([height, 0]);
+
+            const sizeScale = d3.scaleSqrt()
+                .domain([1, 4])
+                .range([8, 40]);
+
+            // Grid lines
+            svg.append('g')
+                .attr('class', 'grid')
+                .call(d3.axisLeft(yScale)
+                    .tickSize(-width)
+                    .tickFormat('')
+                )
+                .style('stroke-dasharray', '3,3')
+                .style('opacity', 0.3);
+
+            // Axes
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(xScale).tickFormat(d => d + 'GB'));
+
+            svg.append('g')
+                .call(d3.axisLeft(yScale).tickFormat(d => d + '%'));
+
+            // Axis labels
+            svg.append('text')
+                .attr('class', 'axis-label')
+                .attr('x', width / 2)
+                .attr('y', height + 45)
+                .style('text-anchor', 'middle')
+                .text('Memory Usage (GB, log scale)');
+
+            svg.append('text')
+                .attr('class', 'axis-label')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', -45)
+                .attr('x', -height / 2)
+                .style('text-anchor', 'middle')
+                .text('Accuracy Retention (%)');
+
+            // Bubbles
+            const bubbles = svg.selectAll('.bubble')
+                .data(data)
+                .enter().append('circle')
+                .attr('class', 'bubble')
+                .attr('cx', d => xScale(d.memory))
+                .attr('cy', d => yScale(d.accuracy))
+                .attr('r', d => sizeScale(d.speed))
+                .style('fill', d => methodColors[d.method] || quantColors[d.quant])
+                .style('opacity', 0.7)
+                .style('stroke', '#333')
+                .style('stroke-width', 2);
+
+            // Hover effects
+            bubbles.on('mouseover', function(event, d) {
+                tooltip.style('opacity', 1)
+                    .html(`<strong>${d.method} ${d.quant}</strong><br/>
+                           Memory: ${d.memory}GB<br/>
+                           Accuracy: ${d.accuracy}%<br/>
+                           Speed: ${d.speed}x`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 30) + 'px');
+                
+                d3.select(this)
+                    .style('opacity', 1)
+                    .style('stroke-width', 3);
+            })
+            .on('mouseout', function() {
+                tooltip.style('opacity', 0);
+                d3.select(this)
+                    .style('opacity', 0.7)
+                    .style('stroke-width', 2);
+            });
+
+            // Legend
+            const legend = svg.append('g')
+                .attr('transform', `translate(${width - 100}, 20)`);
+
+            Object.entries(methodColors).forEach(([method, color], i) => {
+                const legendItem = legend.append('g')
+                    .attr('transform', `translate(0, ${i * 25})`);
+
+                legendItem.append('circle')
+                    .attr('r', 8)
+                    .style('fill', color)
+                    .style('opacity', 0.7);
+
+                legendItem.append('text')
+                    .attr('x', 15)
+                    .attr('y', 5)
+                    .style('font-size', '14px')
+                    .text(method);
+            });
+        }
+
+        // 2. Task-Specific Performance Heatmap
+        function createHeatmap() {
+            const margin = {top: 40, right: 40, bottom: 100, left: 120};
+            const width = 700 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select('#heatmap')
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const tasks = ['Math Reasoning', 'Code Generation', 'Factual Q&A', 'Summarization', 'Creative Writing'];
+            const quantLevels = ['FP16', 'INT8', 'INT4', 'INT3'];
+
+            // Performance data (percentage of original performance retained)
+            const performance = [
+                [99, 95, 87, 72],  // Math Reasoning
+                [99, 96, 90, 78],  // Code Generation
+                [99, 97, 93, 85],  // Factual Q&A
+                [99, 98, 94, 88],  // Summarization
+                [100, 99, 96, 92]  // Creative Writing
+            ];
+
+            const xScale = d3.scaleBand()
+                .domain(quantLevels)
+                .range([0, width])
+                .padding(0.1);
+
+            const yScale = d3.scaleBand()
+                .domain(tasks)
+                .range([0, height])
+                .padding(0.1);
+
+            const colorScale = d3.scaleSequential()
+                .domain([70, 100])
+                .interpolator(d3.interpolateRdYlGn);
+
+            // Create cells
+            tasks.forEach((task, i) => {
+                quantLevels.forEach((quant, j) => {
+                    const value = performance[i][j];
+                    
+                    const cell = svg.append('rect')
+                        .attr('x', xScale(quant))
+                        .attr('y', yScale(task))
+                        .attr('width', xScale.bandwidth())
+                        .attr('height', yScale.bandwidth())
+                        .style('fill', colorScale(value))
+                        .style('stroke', '#fff')
+                        .style('stroke-width', 2);
+
+                    // Add text
+                    svg.append('text')
+                        .attr('x', xScale(quant) + xScale.bandwidth() / 2)
+                        .attr('y', yScale(task) + yScale.bandwidth() / 2)
+                        .attr('dy', '.35em')
+                        .style('text-anchor', 'middle')
+                        .style('fill', value < 85 ? 'white' : 'black')
+                        .style('font-weight', 'bold')
+                        .style('font-size', '16px')
+                        .text(value + '%');
+
+                    // Hover effect
+                    cell.on('mouseover', function(event) {
+                        tooltip.style('opacity', 1)
+                            .html(`<strong>${task}</strong><br/>
+                                   ${quant}: ${value}% performance`)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 30) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        tooltip.style('opacity', 0);
+                    });
+                });
+            });
+
+            // X axis
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .style('font-size', '14px');
+
+            // Y axis
+            svg.append('g')
+                .call(d3.axisLeft(yScale))
+                .style('font-size', '14px');
+
+            // Title
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', -20)
+                .style('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .style('font-weight', 'bold')
+                .text('Performance Retention by Task Type');
+        }
+
+        // 3. Speed-Quality-Memory Triangle (Radar Chart)
+        function createTriangleChart() {
+            const width = 600;
+            const height = 500;
+            const radius = Math.min(width, height) / 2 - 60;
+
+            const svg = d3.select('#triangle-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width/2},${height/2})`);
+
+            // Data for different quantization methods
+            const data = [
+                {name: 'FP16', values: [1.5, 99, 2]},      // [speed, quality, memory_efficiency]
+                {name: 'INT8', values: [2.3, 97, 4]},
+                {name: 'INT4 (AWQ)', values: [3.8, 95, 8]},
+                {name: 'INT4 (SqueezeLLM)', values: [3.2, 96, 8]},
+                {name: 'INT3', values: [3.8, 90, 10.8]},
+            ];
+
+            const axes = ['Speed (×)', 'Quality (%)', 'Memory Efficiency (×)'];
+            const maxValues = [4, 100, 12];
+
+            // Angle for each axis
+            const angleSlice = Math.PI * 2 / axes.length;
+
+            // Scale
+            const rScale = d3.scaleLinear()
+                .range([0, radius])
+                .domain([0, 1]);
+
+            // Grid circles
+            const levels = 5;
+            for(let level = 1; level <= levels; level++) {
+                svg.append('circle')
+                    .attr('r', radius * level / levels)
+                    .style('fill', 'none')
+                    .style('stroke', '#ddd')
+                    .style('stroke-width', 1);
+            }
+
+            // Axes lines
+            axes.forEach((axis, i) => {
+                const angle = angleSlice * i - Math.PI / 2;
+                svg.append('line')
+                    .attr('x1', 0)
+                    .attr('y1', 0)
+                    .attr('x2', radius * Math.cos(angle))
+                    .attr('y2', radius * Math.sin(angle))
+                    .style('stroke', '#999')
+                    .style('stroke-width', 2);
+
+                // Axis labels
+                const labelRadius = radius + 30;
+                svg.append('text')
+                    .attr('x', labelRadius * Math.cos(angle))
+                    .attr('y', labelRadius * Math.sin(angle))
+                    .style('text-anchor', 'middle')
+                    .style('font-size', '14px')
+                    .style('font-weight', 'bold')
+                    .text(axis);
+            });
+
+            // Plot data
+            const lineGenerator = d3.lineRadial()
+                .radius((d, i) => rScale(d / maxValues[i]))
+                .angle((d, i) => angleSlice * i)
+                .curve(d3.curveLinearClosed);
+
+            const colors = d3.scaleOrdinal()
+                .domain(data.map(d => d.name))
+                .range(['#2ecc71', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']);
+
+            // Draw polygons
+            data.forEach((d, idx) => {
+                const polygon = svg.append('path')
+                    .datum(d.values)
+                    .attr('d', lineGenerator)
+                    .style('fill', colors(d.name))
+                    .style('fill-opacity', 0.2)
+                    .style('stroke', colors(d.name))
+                    .style('stroke-width', 3);
+
+                // Hover effect
+                polygon.on('mouseover', function(event) {
+                    d3.select(this)
+                        .style('fill-opacity', 0.4)
+                        .style('stroke-width', 4);
+
+                    tooltip.style('opacity', 1)
+                        .html(`<strong>${d.name}</strong><br/>
+                               Speed: ${d.values[0]}x<br/>
+                               Quality: ${d.values[1]}%<br/>
+                               Memory Eff: ${d.values[2]}x`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 30) + 'px');
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .style('fill-opacity', 0.2)
+                        .style('stroke-width', 3);
+                    tooltip.style('opacity', 0);
+                });
+            });
+
+            // Legend
+            const legend = svg.append('g')
+                .attr('transform', `translate(${-width/2 + 20}, ${-height/2 + 20})`);
+
+            data.forEach((d, i) => {
+                const legendItem = legend.append('g')
+                    .attr('transform', `translate(0, ${i * 25})`);
+
+                legendItem.append('rect')
+                    .attr('width', 18)
+                    .attr('height', 18)
+                    .style('fill', colors(d.name))
+                    .style('opacity', 0.8);
+
+                legendItem.append('text')
+                    .attr('x', 25)
+                    .attr('y', 14)
+                    .style('font-size', '14px')
+                    .text(d.name);
+            });
+        }
+
+        // 4. Perplexity Degradation Curve
+        function createPerplexityCurve() {
+            const margin = {top: 40, right: 120, bottom: 60, left: 60};
+            const width = 800 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select('#perplexity-curve')
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Data: perplexity increase (%) for different model sizes
+            const modelData = [
+                {
+                    name: '7B Model',
+                    color: '#e74c3c',
+                    data: [
+                        {bits: 32, perplexity: 0},
+                        {bits: 16, perplexity: 0.5},
+                        {bits: 8, perplexity: 2.5},
+                        {bits: 4, perplexity: 12},
+                        {bits: 3, perplexity: 25},
+                        {bits: 2, perplexity: 45}
+                    ]
+                },
+                {
+                    name: '13B Model',
+                    color: '#f39c12',
+                    data: [
+                        {bits: 32, perplexity: 0},
+                        {bits: 16, perplexity: 0.3},
+                        {bits: 8, perplexity: 1.8},
+                        {bits: 4, perplexity: 8},
+                        {bits: 3, perplexity: 18},
+                        {bits: 2, perplexity: 35}
+                    ]
+                },
+                {
+                    name: '70B Model',
+                    color: '#2ecc71',
+                    data: [
+                        {bits: 32, perplexity: 0},
+                        {bits: 16, perplexity: 0.1},
+                        {bits: 8, perplexity: 1},
+                        {bits: 4, perplexity: 5},
+                        {bits: 3, perplexity: 12},
+                        {bits: 2, perplexity: 25}
+                    ]
+                }
+            ];
+
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([2, 32])
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, 50])
+                .range([height, 0]);
+
+            // Grid
+            svg.append('g')
+                .attr('class', 'grid')
+                .call(d3.axisLeft(yScale)
+                    .tickSize(-width)
+                    .tickFormat('')
+                )
+                .style('stroke-dasharray', '3,3')
+                .style('opacity', 0.3);
+
+            // Axes
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(xScale).tickValues([2, 3, 4, 8, 16, 32]));
+
+            svg.append('g')
+                .call(d3.axisLeft(yScale).tickFormat(d => d + '%'));
+
+            // Axis labels
+            svg.append('text')
+                .attr('class', 'axis-label')
+                .attr('x', width / 2)
+                .attr('y', height + 45)
+                .style('text-anchor', 'middle')
+                .text('Quantization Bits');
+
+            svg.append('text')
+                .attr('class', 'axis-label')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', -45)
+                .attr('x', -height / 2)
+                .style('text-anchor', 'middle')
+                .text('Perplexity Increase (%)');
+
+            // Line generator
+            const line = d3.line()
+                .x(d => xScale(d.bits))
+                .y(d => yScale(d.perplexity))
+                .curve(d3.curveMonotoneX);
+
+            // Draw lines
+            modelData.forEach(model => {
+                // Line
+                svg.append('path')
+                    .datum(model.data)
+                    .attr('fill', 'none')
+                    .attr('stroke', model.color)
+                    .attr('stroke-width', 3)
+                    .attr('d', line);
+
+                // Dots
+                svg.selectAll(`.dot-${model.name.replace(/\s/g, '')}`)
+                    .data(model.data)
+                    .enter().append('circle')
+                    .attr('cx', d => xScale(d.bits))
+                    .attr('cy', d => yScale(d.perplexity))
+                    .attr('r', 5)
+                    .style('fill', model.color)
+                    .on('mouseover', function(event, d) {
+                        tooltip.style('opacity', 1)
+                            .html(`<strong>${model.name}</strong><br/>
+                                   ${d.bits}-bit: +${d.perplexity}% perplexity`)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 30) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        tooltip.style('opacity', 0);
+                    });
+            });
+
+            // Legend
+            const legend = svg.append('g')
+                .attr('transform', `translate(${width - 100}, 20)`);
+
+            modelData.forEach((model, i) => {
+                const legendItem = legend.append('g')
+                    .attr('transform', `translate(0, ${i * 25})`);
+
+                legendItem.append('line')
+                    .attr('x1', 0)
+                    .attr('x2', 25)
+                    .attr('y1', 0)
+                    .attr('y2', 0)
+                    .style('stroke', model.color)
+                    .style('stroke-width', 3);
+
+                legendItem.append('text')
+                    .attr('x', 30)
+                    .attr('y', 5)
+                    .style('font-size', '14px')
+                    .text(model.name);
+            });
+
+            // Add "danger zone" annotation
+            svg.append('rect')
+                .attr('x', xScale(2))
+                .attr('y', 0)
+                .attr('width', xScale(3) - xScale(2))
+                .attr('height', height)
+                .style('fill', 'red')
+                .style('opacity', 0.1);
+
+            svg.append('text')
+                .attr('x', xScale(2.5))
+                .attr('y', 20)
+                .style('text-anchor', 'middle')
+                .style('fill', 'darkred')
+                .style('font-weight', 'bold')
+                .text('Extreme Quantization Zone');
+        }
+
+        // Initialize all visualizations
+        createScatterPlot();
+        createHeatmap();
+        createTriangleChart();
+        createPerplexityCurve();
+    </script>
+</body>
+</html>
