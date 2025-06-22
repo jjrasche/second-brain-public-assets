@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neighborhood Meal Collective - Eat Better, Save Time, Build Community</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+        
+        @keyframes slide {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .tagline {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            padding: 60px 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            color: #666;
+        }
+        
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .how-it-works {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        
+        .obligations-benefits {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .obligations-benefits {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .column {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .obligations {
+            border-top: 5px solid #e74c3c;
+        }
+        
+        .benefits {
+            border-top: 5px solid #27ae60;
+        }
+        
+        .column h3 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        
+        .column ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .column li {
+            margin-bottom: 20px;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .obligations li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .benefits li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .pricing {
+            background: #f8f9fa;
+            text-align: center;
+        }
+        
+        .price-card {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .price {
+            font-size: 4em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .price-detail {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .cta {
+            background: #667eea;
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .cta:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .faq {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: #f8f9fa;
+        }
+        
+        .faq-answer {
+            padding: 0 25px 25px;
+            color: #666;
+            display: none;
+        }
+        
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .timeline {
+            max-width: 600px;
+            margin: 50px auto;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Take Back Your Evenings</h1>
+            <p class="tagline">Join our Neighborhood Meal Collective and save 300+ hours a year while enjoying chef-quality meals delivered fresh to your door</p>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat-card">
+            <div class="stat-number">$5,450</div>
+            <div class="stat-label">Average Annual Savings Per Family</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">300+</div>
+            <div class="stat-label">Hours Saved Per Year</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">3x</div>
+            <div class="stat-label">Better Food Quality</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">75%</div>
+            <div class="stat-label">Less Time Cooking</div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>How It Works</h2>
+        <div class="how-it-works">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Join a Pod</h3>
+                <p>Team up with 3 other neighborhood families. Each family cooks one day and delivers to all four households.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Cook Once, Eat Four Times</h3>
+                <p>When it's your turn, you make 4x the quantity. Same effort, but everyone eats well all week.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Enjoy & Share</h3>
+                <p>Receive fresh, home-cooked meals 3 days a week. Give feedback through our app to improve everyone's experience.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>What You Give & What You Get</h2>
+        <div class="obligations-benefits">
+            <div class="column obligations">
+                <h3>Your Commitments</h3>
+                <ul>
+                    <li><strong>Cook once every 4 days</strong> - Prepare dinner for 4 families (about 90 minutes)</li>
+                    <li><strong>$185 monthly membership</strong> - Covers bulk food buying and shared equipment</li>
+                    <li><strong>Deliver meals by 6 PM</strong> - Simple drop-off to your pod neighbors</li>
+                    <li><strong>Rinse & return containers</strong> - Takes 2 minutes after eating</li>
+                    <li><strong>Provide meal feedback</strong> - Quick 20-second voice note to improve recipes</li>
+                    <li><strong>Attend monthly meeting</strong> - 1-hour community planning session</li>
+                </ul>
+            </div>
+            <div class="column benefits">
+                <h3>Your Benefits</h3>
+                <ul>
+                    <li><strong>Save $450+ monthly</strong> - Bulk buying and no food waste</li>
+                    <li><strong>Get 6+ hours back weekly</strong> - Cook just once instead of daily</li>
+                    <li><strong>Restaurant-quality meals delivered</strong> - Fresh, homemade dinners to your door</li>
+                    <li><strong>Personalized nutrition</strong> - AI-optimized meals for your health needs</li>
+                    <li><strong>Feel connected through cooking</strong> - The joy of nourishing your community</li>
+                    <li><strong>Never decide "what's for dinner"</strong> - Seasonal menu planned for you</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section pricing">
+        <h2>Simple, Transparent Pricing</h2>
+        <div class="price-card">
+            <div class="price">$185</div>
+            <p class="price-detail">Per family per month</p>
+            <p class="price-detail">Includes all groceries for dinners</p>
+            <p class="price-detail">Covers shared equipment & containers</p>
+            <p class="price-detail">No hidden fees, cancel anytime</p>
+            <p style="margin-top: 30px; font-weight: bold; color: #27ae60;">You currently spend ~$635/month on dinners</p>
+            <a href="#" class="cta">Join the Waitlist</a>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Your Journey to Food Freedom</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-icon">1</div>
+                <div>
+                    <strong>Week 1:</strong> Meet your pod families, share dietary preferences, get containers
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon">2</div>
+                <div>
+                    <strong>Week 2-4:</strong> Start rotation with simple meals, find your rhythm
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon">3</div>
+                <div>
+                    <strong>Month 2:</strong> Expand recipes, optimize based on feedback
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon">4</div>
+                <div>
+                    <strong>Month 3+:</strong> Enjoy life with 300+ hours back per year!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section faq">
+        <h2>Common Questions</h2>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                What about dietary restrictions and preferences?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Our matching system groups families with compatible dietary needs. Whether you're vegan, gluten-free, or managing diabetes, you'll be paired with others who understand. Our AI meal planning ensures everyone's restrictions are respected in every meal.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                What if I don't like cooking or I'm not good at it?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Perfect! You only cook once every 4 days, and we provide simple, tested recipes. Many members say focusing on one meal actually improved their cooking. Plus, you can start with basics like pasta bakes or slow-cooker meals. The community shares tips and techniques.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                How does meal delivery work?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Meals are delivered in reusable containers between 5-6 PM. You'll drop off to your 3 pod neighbors (usually within a 5-minute walk). Insulated bags keep food at safe temperatures. After eating, rinse containers and leave in your collection bin for weekly pickup.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                Can I skip weeks or take vacations?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Absolutely! Life happens. Give your pod 1 week notice and we'll arrange coverage from our substitute pool. You can pause membership for up to 4 weeks per year for vacations. The flexibility is built into the system.
+            </div>
+        </div>
+    </section>
+
+    <section class="hero" style="background: linear-gradient(135deg, #27ae60 0%, #667eea 100%);">
+        <div class="hero-content">
+            <h2 style="color: white;">Ready to Transform Your Relationship with Food?</h2>
+            <p class="tagline">Join 47 families already saving time and eating better</p>
+            <a href="#" class="cta" style="background: white; color: #667eea;">Start Your Food Freedom Journey</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>Neighborhood Meal Collective - A 501(c)(3) Community Nonprofit</p>
+        <p style="margin-top: 10px; opacity: 0.7;">Building community infrastructure, one meal at a time</p>
+    </footer>
+
+    <script>
+        function toggleAnswer(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('span');
+            
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+                icon.textContent = '+';
+            } else {
+                // Close all other answers
+                document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+                document.querySelectorAll('.faq-question span').forEach(i => i.textContent = '+');
+                
+                answer.style.display = 'block';
+                icon.textContent = '−';
+            }
+        }
+        
+        // Animate stats when they come into view
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out both';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.stat-card, .step, .column').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
