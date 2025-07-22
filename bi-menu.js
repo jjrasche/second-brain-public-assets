@@ -93,6 +93,7 @@ const BiServicesApp = {
                 <span class="category-icon">${category.icon}</span>
                 ${category.name}
             </h2>
+            <div class="category-description">${category.description}</div>
             <span class="expand-icon">▼</span>
         `;
         return header;
