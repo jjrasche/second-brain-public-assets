@@ -30,6 +30,7 @@ const biServicesData = {
         {
             id: "data-services",
             name: "Data Services",
+            description: 'Connect, clean, and organize your information',
             icon: "🔄",
             services: [
                 {
@@ -92,6 +93,7 @@ const biServicesData = {
         {
             id: "reporting-dashboards",
             name: "Reporting & Dashboards",
+            description: 'Visualize insights and automate your analytics',
             icon: "📊",
             services: [
                 {
@@ -143,6 +145,7 @@ const biServicesData = {
         {
             id: "process-automation",
             name: "Process Automation",
+            description: 'Streamline workflows and eliminate manual tasks',
             icon: "⚙️",
             services: [
                 {
@@ -205,6 +208,7 @@ const biServicesData = {
         {
             id: "application-development",
             name: "Application Development",
+            description: 'Build custom tools and integrate systems',
             icon: "💻",
             services: [
                 {
@@ -267,6 +271,7 @@ const biServicesData = {
         {
             id: "support-maintenance",
             name: "Support & Maintenance",
+            description: 'Keep your solutions running smoothly',
             icon: "🔨",
             services: [
                 {
@@ -329,6 +334,7 @@ const biServicesData = {
         {
             id: "compliance-security",
             name: "Compliance & Security",
+            description: 'Protect data and meet regulatory requirements'
             icon: "✅",
             services: [
                 {

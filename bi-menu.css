@@ -143,6 +143,17 @@ header p {
     animation: fadeInUp 0.5s forwards;
 }
 
+.category-description {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 5px;
+    font-weight: 400;
+}
+
+.category-section.expanded .category-description {
+    display: none;
+}
+
 @keyframes fadeInUp {
     to {
         opacity: 1;
@@ -218,7 +229,7 @@ header p {
 }
 
 .service-card.expanded {
-    grid-column: span 2;
+    grid-column: span 3;
     background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
     border-color: var(--secondary);
 }
